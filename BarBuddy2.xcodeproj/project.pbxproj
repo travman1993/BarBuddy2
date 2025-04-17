@@ -219,7 +219,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 263D100C2D8E3433003D370E /* Build configuration list for PBXProject "BarBuddy" */;
+			buildConfigurationList = 263D100C2D8E3433003D370E /* Build configuration list for PBXProject "BarBuddy2" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -446,7 +446,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = rodriguez.travis.BarBuddy;
+				PRODUCT_BUNDLE_IDENTIFIER = rodriguez.travis.BarBuddy2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -478,7 +478,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = rodriguez.travis.BarBuddy;
+				PRODUCT_BUNDLE_IDENTIFIER = rodriguez.travis.BarBuddy2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -561,7 +561,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		263D100C2D8E3433003D370E /* Build configuration list for PBXProject "BarBuddy" */ = {
+		263D100C2D8E3433003D370E /* Build configuration list for PBXProject "BarBuddy2" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				263D10332D8E3435003D370E /* Debug */,
