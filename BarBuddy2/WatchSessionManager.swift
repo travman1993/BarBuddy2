@@ -2,7 +2,6 @@
 //  WatchSessionManager.swift
 //  BarBuddy2
 
-
 import Foundation
 import WatchConnectivity
 
@@ -19,6 +18,7 @@ class WatchSessionManager: NSObject, ObservableObject, WCSessionDelegate {
     /// Published properties for tracking session state
     @Published var isReachable = false
     @Published var isWatchAppInstalled = false
+    @Published var watchLastSync: Date?
     
     /// Session reference
     private var session: WCSession?
@@ -63,17 +63,35 @@ class WatchSessionManager: NSObject, ObservableObject, WCSessionDelegate {
      *   - timeUntilReset: Time until count resets at 4am
      */
     func sendDrinkDataToWatch(drinkCount: Double, drinkLimit: Double, timeUntilReset: TimeInterval) {
-        guard isReachable else { return }
+        guard let session = session, session.activationState == .activated,
+              session.isPaired && session.isWatchAppInstalled else {
+            return
+        }
         
         let drinkData: [String: Any] = [
+            "type": "drinkUpdate",
             "drinkCount": drinkCount,
             "drinkLimit": drinkLimit,
             "timeUntilReset": timeUntilReset,
             "timestamp": Date().timeIntervalSince1970
         ]
         
-        session?.sendMessage(drinkData, replyHandler: nil) { error in
-            print("Error sending drink data: \(error.localizedDescription)")
+        // Try to send message immediately if watch is reachable
+        if session.isReachable {
+            session.sendMessage(drinkData, replyHandler: nil) { error in
+                print("Error sending drink data: \(error.localizedDescription)")
+                
+                // Fallback to application context if message fails
+                try? session.updateApplicationContext(drinkData)
+            }
+        } else {
+            // Use application context for background transfer
+            try? session.updateApplicationContext(drinkData)
+        }
+        
+        // Update complication data on the watch if possible
+        if session.isComplicationEnabled {
+            session.transferCurrentComplicationUserInfo(drinkData)
         }
     }
     
@@ -81,16 +99,30 @@ class WatchSessionManager: NSObject, ObservableObject, WCSessionDelegate {
      * Sends user profile information to the Watch app.
      */
     func sendUserProfileToWatch() {
-        guard let drinkTracker = drinkTracker, isReachable else { return }
+        guard let drinkTracker = drinkTracker,
+              let session = session, session.activationState == .activated,
+              session.isPaired && session.isWatchAppInstalled else {
+            return
+        }
         
         let profileData: [String: Any] = [
+            "type": "profileUpdate",
             "weight": drinkTracker.userProfile.weight,
             "gender": drinkTracker.userProfile.gender.rawValue,
             "height": drinkTracker.userProfile.height ?? 0
         ]
         
-        session?.sendMessage(profileData, replyHandler: nil) { error in
-            print("Error sending profile data: \(error.localizedDescription)")
+        // Try to send message immediately if watch is reachable
+        if session.isReachable {
+            session.sendMessage(profileData, replyHandler: nil) { error in
+                print("Error sending profile data: \(error.localizedDescription)")
+                
+                // Fallback to application context if message fails
+                try? session.updateApplicationContext(profileData)
+            }
+        } else {
+            // Use application context for background transfer
+            try? session.updateApplicationContext(profileData)
         }
     }
     
@@ -101,6 +133,10 @@ class WatchSessionManager: NSObject, ObservableObject, WCSessionDelegate {
         guard let request = message["request"] as? String else {
             replyHandler(["error": "Invalid request"])
             return
+        }
+        
+        DispatchQueue.main.async {
+            self.watchLastSync = Date()
         }
         
         switch request {
@@ -117,30 +153,127 @@ class WatchSessionManager: NSObject, ObservableObject, WCSessionDelegate {
                 "timeUntilReset": drinkTracker.timeUntilReset
             ])
             
-        case "logDrink":
-            // Log a drink from Watch
-            guard let drinkType = message["drinkType"] as? String,
-                  let type = DrinkType(rawValue: drinkType) else {
-                replyHandler(["error": "Invalid drink type"])
+        case "getUserProfile":
+            // Respond with user profile data
+            guard let drinkTracker = drinkTracker else {
+                replyHandler(["error": "Drink tracker not available"])
                 return
             }
             
-            // Add drink using default values from drink type
-            drinkTracker?.addDrink(
+            replyHandler([
+                "weight": drinkTracker.userProfile.weight,
+                "gender": drinkTracker.userProfile.gender.rawValue,
+                "height": drinkTracker.userProfile.height ?? 0
+            ])
+            
+        case "logDrink":
+            // Log a drink from Watch
+            guard let drinkTracker = drinkTracker else {
+                replyHandler(["error": "Drink tracker not available"])
+                return
+            }
+            
+            // Extract drink parameters from message
+            guard let drinkType = message["drinkType"] as? String,
+                  let type = DrinkType(rawValue: drinkType),
+                  let size = message["size"] as? Double,
+                  let alcoholPercentage = message["alcoholPercentage"] as? Double else {
+                
+                // If missing size or percentage, use defaults
+                if let drinkType = message["drinkType"] as? String,
+                   let type = DrinkType(rawValue: drinkType) {
+                    
+                    // Add drink using default values from drink type
+                    drinkTracker.addDrink(
+                        type: type,
+                        size: type.defaultSize,
+                        alcoholPercentage: type.defaultAlcoholPercentage
+                    )
+                    
+                    // Respond with updated drink data
+                    replyHandler([
+                        "drinkCount": drinkTracker.standardDrinkCount,
+                        "drinkLimit": drinkTracker.drinkLimit,
+                        "timeUntilReset": drinkTracker.timeUntilReset
+                    ])
+                    return
+                }
+                
+                replyHandler(["error": "Invalid drink parameters"])
+                return
+            }
+            
+            // Add the drink with specific parameters
+            drinkTracker.addDrink(
                 type: type,
-                size: type.defaultSize,
-                alcoholPercentage: type.defaultAlcoholPercentage
+                size: size,
+                alcoholPercentage: alcoholPercentage
             )
             
             // Respond with updated drink data
             replyHandler([
-                "drinkCount": drinkTracker?.standardDrinkCount ?? 0,
-                "drinkLimit": drinkTracker?.drinkLimit ?? 4.0,
-                "timeUntilReset": drinkTracker?.timeUntilReset ?? 0
+                "drinkCount": drinkTracker.standardDrinkCount,
+                "drinkLimit": drinkTracker.drinkLimit,
+                "timeUntilReset": drinkTracker.timeUntilReset
             ])
             
+        case "clearDrinks":
+            // Clear all drinks (emergency reset)
+            guard let drinkTracker = drinkTracker else {
+                replyHandler(["error": "Drink tracker not available"])
+                return
+            }
+            
+            drinkTracker.clearDrinks()
+            
+            // Respond with updated drink data
+            replyHandler([
+                "drinkCount": drinkTracker.standardDrinkCount,
+                "drinkLimit": drinkTracker.drinkLimit,
+                "timeUntilReset": drinkTracker.timeUntilReset
+            ])
+            
+        case "updateDrinkLimit":
+            // Update drink limit from watch
+            guard let drinkTracker = drinkTracker,
+                  let newLimit = message["limit"] as? Double else {
+                replyHandler(["error": "Invalid or missing limit value"])
+                return
+            }
+            
+            drinkTracker.updateDrinkLimit(newLimit)
+            
+            // Respond with updated drink data
+            replyHandler([
+                "drinkCount": drinkTracker.standardDrinkCount,
+                "drinkLimit": drinkTracker.drinkLimit,
+                "timeUntilReset": drinkTracker.timeUntilReset
+            ])
+            
+        case "getEmergencyContacts":
+            // Send emergency contacts to watch
+            guard let drinkTracker = drinkTracker else {
+                replyHandler(["error": "Drink tracker not available"])
+                return
+            }
+            
+            let contacts = drinkTracker.userProfile.emergencyContacts
+            
+            // Convert contacts to serializable dictionary
+            let contactDicts = contacts.map { contact -> [String: Any] in
+                return [
+                    "id": contact.id.uuidString,
+                    "name": contact.name,
+                    "phoneNumber": contact.phoneNumber,
+                    "relationshipType": contact.relationshipType,
+                    "sendAutomaticTexts": contact.sendAutomaticTexts
+                ]
+            }
+            
+            replyHandler(["contacts": contactDicts])
+            
         default:
-            replyHandler(["error": "Unknown request"])
+            replyHandler(["error": "Unknown request type: \(request)"])
         }
     }
     
@@ -148,14 +281,50 @@ class WatchSessionManager: NSObject, ObservableObject, WCSessionDelegate {
     
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         DispatchQueue.main.async {
-            self.isReachable = (activationState == .activated)
+            self.isReachable = (activationState == .activated) && session.isReachable
             self.isWatchAppInstalled = session.isWatchAppInstalled
+            
+            // If watch app is installed, send initial data
+            if session.isWatchAppInstalled && self.drinkTracker != nil {
+                self.sendDrinkDataToWatch(
+                    drinkCount: self.drinkTracker!.standardDrinkCount,
+                    drinkLimit: self.drinkTracker!.drinkLimit,
+                    timeUntilReset: self.drinkTracker!.timeUntilReset
+                )
+                self.sendUserProfileToWatch()
+            }
         }
     }
     
     func sessionReachabilityDidChange(_ session: WCSession) {
         DispatchQueue.main.async {
             self.isReachable = session.isReachable
+            
+            // If watch is now reachable, send updates
+            if session.isReachable && self.drinkTracker != nil {
+                self.sendDrinkDataToWatch(
+                    drinkCount: self.drinkTracker!.standardDrinkCount,
+                    drinkLimit: self.drinkTracker!.drinkLimit,
+                    timeUntilReset: self.drinkTracker!.timeUntilReset
+                )
+            }
+        }
+    }
+    
+    // Handle incoming application context updates (for background updates)
+    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
+        // Process any data sent from the watch in the background
+        if let request = applicationContext["request"] as? String,
+           request == "needsUpdate" {
+            DispatchQueue.main.async {
+                if let drinkTracker = self.drinkTracker {
+                    self.sendDrinkDataToWatch(
+                        drinkCount: drinkTracker.standardDrinkCount,
+                        drinkLimit: drinkTracker.drinkLimit,
+                        timeUntilReset: drinkTracker.timeUntilReset
+                    )
+                }
+            }
         }
     }
     
@@ -179,6 +348,46 @@ class WatchSessionManager: NSObject, ObservableObject, WCSessionDelegate {
     func isWatchConnectivityAvailable() -> Bool {
         return WCSession.isSupported() &&
                session?.activationState == .activated &&
-               session?.isReachable == true
+               session?.isReachable == true &&
+               session?.isWatchAppInstalled == true
+    }
+    
+    /**
+     * Forces an immediate update to the watch.
+     * Call this when changes are made in the app that should be reflected on the watch.
+     */
+    func forceWatchUpdate() {
+        guard let drinkTracker = drinkTracker else { return }
+        
+        sendDrinkDataToWatch(
+            drinkCount: drinkTracker.standardDrinkCount,
+            drinkLimit: drinkTracker.drinkLimit,
+            timeUntilReset: drinkTracker.timeUntilReset
+        )
+        
+        sendUserProfileToWatch()
+    }
+    
+    /**
+     * Updates complication data on the watch.
+     * Call this to refresh the watch face complications.
+     */
+    func updateComplications() {
+        guard let session = session,
+              session.activationState == .activated,
+              session.isComplicationEnabled,
+              let drinkTracker = drinkTracker else {
+            return
+        }
+        
+        let complicationData: [String: Any] = [
+            "type": "complicationUpdate",
+            "drinkCount": drinkTracker.standardDrinkCount,
+            "drinkLimit": drinkTracker.drinkLimit,
+            "timeUntilReset": drinkTracker.timeUntilReset,
+            "safetyStatus": drinkTracker.getSafetyStatus().rawValue
+        ]
+        
+        session.transferCurrentComplicationUserInfo(complicationData)
     }
 }
