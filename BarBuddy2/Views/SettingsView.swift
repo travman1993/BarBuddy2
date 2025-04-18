@@ -103,6 +103,7 @@ struct SettingsView: View {
                 Toggle("Enable Quick Logging", isOn: $settingsManager.watchQuickAdd)
                 Toggle("Haptic Feedback", isOn: $settingsManager.watchComplication)
                 Toggle("Complication Display", isOn: $settingsManager.syncWithAppleWatch)
+                WatchSettingsSection()
             }
 
             // App Settings

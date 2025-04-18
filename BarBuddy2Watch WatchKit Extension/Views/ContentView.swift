@@ -7,10 +7,13 @@
 // BarBuddy2Watch WatchKit Extension/Views/ContentView.swift
 
 import SwiftUI
+import WatchKit
 
 struct ContentView: View {
     @EnvironmentObject var drinkTracker: DrinkTrackerWatch
+    @EnvironmentObject var sessionManager: WatchSessionManager
     @State private var selectedTab = 0
+    @State private var showingSyncIndicator = false
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -30,8 +33,32 @@ struct ContentView: View {
             SettingsView()
                 .tag(3)
         }
-        .navigationTitle(getNavigationTitle())
         .tabViewStyle(PageTabViewStyle())
+        .navigationTitle(getNavigationTitle())
+        .overlay(
+            // Sync indicator overlay
+            Group {
+                if showingSyncIndicator {
+                    SyncIndicatorView()
+                        .transition(.opacity)
+                }
+            }
+        )
+        .handleDeepLink(tabSelection: $selectedTab)
+        .onAppear {
+            // Request data from phone when view appears
+            requestDataFromPhone()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: WKExtension.applicationDidBecomeActiveNotification)) { _ in
+            // Request data when app becomes active
+            requestDataFromPhone()
+        }
+        .onReceive(sessionManager.$isPhoneAppAvailable) { isAvailable in
+            // Show sync indicator when connection status changes
+            if isAvailable {
+                showSyncAnimation()
+            }
+        }
     }
     
     private func getNavigationTitle() -> String {
@@ -47,6 +74,55 @@ struct ContentView: View {
         default:
             return "BarBuddy"
         }
+    }
+    
+    private func requestDataFromPhone() {
+        showSyncAnimation()
+        sessionManager.requestDrinkDataFromPhone()
+    }
+    
+    private func showSyncAnimation() {
+        // Show sync indicator
+        withAnimation {
+            showingSyncIndicator = true
+        }
+        
+        // Hide after delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation {
+                showingSyncIndicator = false
+            }
+        }
+    }
+}
+
+// MARK: - Sync Indicator View
+struct SyncIndicatorView: View {
+    @State private var isRotating = false
+    
+    var body: some View {
+        VStack {
+            Image(systemName: "arrow.triangle.2.circlepath")
+                .font(.system(size: 20))
+                .foregroundColor(.blue)
+                .rotationEffect(Angle.degrees(isRotating ? 360 : 0))
+                .animation(
+                    Animation.linear(duration: 1)
+                        .repeatForever(autoreverses: false),
+                    value: isRotating
+                )
+                .onAppear {
+                    isRotating = true
+                }
+            
+            Text("Syncing...")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(Color.black.opacity(0.7))
+        .cornerRadius(8)
     }
 }
 
@@ -75,397 +151,14 @@ struct DashboardView: View {
                         Text("Reset in: \(drinkTracker.getFormattedTimeUntilReset())")
                             .font(.footnote)
                     }
-                    .padding(.top, 8)
-            }
-        }
-    }
-}
-
-// MARK: - Quick Add View
-struct QuickAddView: View {
-    @EnvironmentObject var drinkTracker: DrinkTrackerWatch
-    
-    let drinkTypes: [DrinkType] = DrinkType.allCases
-    
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 12) {
-                Text("Quick Add Drink")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                
-                // Grid of drink types
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
-                    ForEach(drinkTypes, id: \.self) { drinkType in
-                        DrinkTypeButton(drinkType: drinkType) {
-                            // Add drink of selected type
-                            drinkTracker.quickAddDrink(type: drinkType)
-                            
-                            // Provide haptic feedback
-                            WKInterfaceDevice.current().play(.success)
-                        }
-                    }
-                }
-                
-                // Current Standard Drinks Counter
-                HStack {
-                    Text("Current Total:")
-                        .font(.footnote)
-                    
-                    Spacer()
-                    
-                    Text("\(String(format: "%.1f", drinkTracker.standardDrinkCount)) / \(String(format: "%.1f", drinkTracker.drinkLimit))")
-                        .font(.footnote)
-                        .fontWeight(.bold)
-                        .foregroundColor(drinkTracker.getSafetyStatus().color)
-                }
-                .padding(.top, 8)
-            }
-            .padding(8)
-        }
-    }
-}
-
-// MARK: - Drink Type Button
-struct DrinkTypeButton: View {
-    let drinkType: DrinkType
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
-                // Emoji icon
-                Text(drinkType.icon)
-                    .font(.title3)
-                
-                // Drink type name
-                Text(drinkType.rawValue)
-                    .font(.caption2)
-                
-                // Drink properties
-                Text("\(String(format: "%.1f", drinkType.defaultSize))oz, \(Int(drinkType.defaultAlcoholPercentage))%")
-                    .font(.system(size: 8))
-                    .foregroundColor(.gray)
-            }
-            .padding(8)
-            .frame(maxWidth: .infinity)
-            .background(drinkType.color.opacity(0.2))
-            .cornerRadius(8)
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
-
-// MARK: - Emergency View
-struct EmergencyView: View {
-    @State private var showingEmergencySheet = false
-    
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                // Emergency Button
-                Button(action: {
-                    showingEmergencySheet = true
-                }) {
-                    VStack {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                        
-                        Text("Emergency")
-                            .font(.caption)
-                            .foregroundColor(.white)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.red)
-                    .cornerRadius(10)
-                }
-                
-                // Ride Options
-                VStack(spacing: -4) {
-                    Text("Get a Ride")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    HStack {
-                        RideButton(service: "Uber", icon: "car.fill") {
-                            // Action would open Uber deep link
-                            // In a real app, would use WKExtension.shared().openSystemURL()
-                        }
-                        
-                        RideButton(service: "Lyft", icon: "car.fill") {
-                            // Action would open Lyft deep link
-                        }
-                    }
-                    .padding(.top, 8)
-                }
-                
-                // Emergency Contacts
-                VStack(spacing: 8) {
-                    Text("Emergency Contacts")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    EmergencyContactButton(name: "Call Contact", icon: "person.circle.fill") {
-                        // Would access emergency contacts in a real app
-                    }
-                    
-                    EmergencyContactButton(name: "Send Location", icon: "location.circle.fill") {
-                        // Would send location to emergency contacts
-                    }
-                }
-                .padding(.top, 8)
-                
-                // Safety Tips
-                VStack(spacing: 8) {
-                    Text("Safety Tips")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    Text("Stay hydrated: drink water between alcoholic drinks")
-                        .font(.caption2)
-                        .multilineTextAlignment(.leading)
-                        .padding(8)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.blue.opacity(0.2))
-                        .cornerRadius(8)
-                }
-                .padding(.top, 8)
-            }
-            .padding(12)
-        }
-        .sheet(isPresented: $showingEmergencySheet) {
-            EmergencySheetView()
-        }
-    }
-}
-
-// Emergency Sheet View
-struct EmergencySheetView: View {
-    @Environment(\.presentationMode) var presentationMode
-    
-    var body: some View {
-        VStack(spacing: 12) {
-            Text("Emergency Options")
-                .font(.headline)
-            
-            Button(action: {
-                // Would call emergency contact
-                presentationMode.wrappedValue.dismiss()
-            }) {
-                Label("Call Emergency Contact", systemImage: "phone.fill")
-                    .font(.system(size: 14))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-                    .background(Color.blue)
-                    .cornerRadius(8)
-            }
-            
-            Button(action: {
-                // Would call 911
-                presentationMode.wrappedValue.dismiss()
-            }) {
-                Label("Call 911", systemImage: "phone.fill")
-                    .font(.system(size: 14))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-                    .background(Color.red)
-                    .cornerRadius(8)
-            }
-            
-            Button(action: {
-                // Would get a ride
-                presentationMode.wrappedValue.dismiss()
-            }) {
-                Label("Get Ride Home", systemImage: "car.fill")
-                    .font(.system(size: 14))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-                    .background(Color.green)
-                    .cornerRadius(8)
-            }
-            
-            Button("Cancel") {
-                presentationMode.wrappedValue.dismiss()
-            }
-            .foregroundColor(.gray)
-            .padding(.top, 8)
-        }
-        .padding(12)
-    }
-}
-
-// Ride Button
-struct RideButton: View {
-    let service: String
-    let icon: String
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack {
-                Image(systemName: icon)
-                    .font(.body)
-                
-                Text(service)
-                    .font(.caption2)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
-            .background(Color.green.opacity(0.2))
-            .cornerRadius(8)
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
-
-// Emergency Contact Button
-struct EmergencyContactButton: View {
-    let name: String
-    let icon: String
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack {
-                Image(systemName: icon)
-                    .font(.body)
-                
-                Text(name)
-                    .font(.caption)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
-            .background(Color.blue.opacity(0.2))
-            .cornerRadius(8)
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
-
-// MARK: - Settings View
-struct SettingsView: View {
-    @EnvironmentObject var drinkTracker: DrinkTrackerWatch
-    @EnvironmentObject var sessionManager: WatchSessionManager
-    
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 12) {
-                // App Status Section
-                VStack(spacing: 8) {
-                    Text("App Status")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    HStack {
-                        Image(systemName: sessionManager.isPhoneAppAvailable ? "iphone.circle.fill" : "iphone.slash")
-                            .foregroundColor(sessionManager.isPhoneAppAvailable ? .green : .red)
-                        
-                        Text(sessionManager.isPhoneAppAvailable ? "Phone Connected" : "Phone Not Connected")
-                            .font(.caption)
-                        
-                        Spacer()
-                    }
-                    .padding(8)
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(8)
-                }
-                
-                // Sync Section
-                VStack(spacing: 8) {
-                    Text("Synchronization")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    Button(action: {
-                        // Sync data from phone
-                        sessionManager.requestDrinkDataFromPhone()
-                        sessionManager.requestUserProfileFromPhone()
-                        
-                        // Provide haptic feedback
-                        WKInterfaceDevice.current().play(.click)
-                    }) {
-                        Label("Sync with Phone", systemImage: "arrow.triangle.2.circlepath")
-                            .font(.caption)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
-                            .background(Color.blue.opacity(0.2))
-                            .cornerRadius(8)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    
-                    Text("Last sync: \(drinkTracker.formatTimeSinceSync())")
-                        .font(.system(size: 10))
-                        .foregroundColor(.gray)
-                }
-                
-                // User Info Section
-                VStack(spacing: 8) {
-                    Text("User Profile")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    HStack {
-                        Text("Weight:")
-                            .font(.caption)
-                        
-                        Spacer()
-                        
-                        Text("\(Int(drinkTracker.userWeight)) lbs")
-                            .font(.caption)
-                    }
-                    .padding(.horizontal, 8)
-                    
-                    HStack {
-                        Text("Gender:")
-                            .font(.caption)
-                        
-                        Spacer()
-                        
-                        Text(drinkTracker.userGender.rawValue)
-                            .font(.caption)
-                    }
-                    .padding(.horizontal, 8)
-                }
-                
-                // About Section
-                VStack(spacing: 8) {
-                    Text("About")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    Text("BarBuddy Watch+ v1.0")
-                        .font(.caption2)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                    
-                    Text("Sync with BarBuddy2 on your iPhone for full features")
-                        .font(.system(size: 9))
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.gray)
-                }
-                .padding(.top, 8)
-            }
-            .padding(12)
-        }
-    }
-}, 4)
+                    .padding(.top, 4)
                 }
                 
                 // Quick Action Buttons
-                HStack {
+                HStack(spacing: 12) {
                     Button(action: {
                         sessionManager.requestDrinkDataFromPhone()
+                        WKInterfaceDevice.current().play(.click)
                     }) {
                         Image(systemName: "arrow.clockwise")
                             .foregroundColor(.blue)
@@ -476,18 +169,10 @@ struct SettingsView: View {
                     .cornerRadius(20)
                     
                     Button(action: {
-                        selectedTab = 1 // Switch to Quick Add tab
-                    }) {
-                        Image(systemName: "plus")
-                            .foregroundColor(.green)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .frame(width: 40, height: 40)
-                    .background(Color.green.opacity(0.2))
-                    .cornerRadius(20)
-                    
-                    Button(action: {
-                        showingDetails.toggle()
+                        WKInterfaceDevice.current().play(.click)
+                        withAnimation {
+                            showingDetails.toggle()
+                        }
                     }) {
                         Image(systemName: "info.circle")
                             .foregroundColor(.orange)
@@ -523,11 +208,16 @@ struct SettingsView: View {
                             Divider()
                         }
                     }
+                } else {
+                    Text("No drinks recorded yet")
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                        .padding(.top, 8)
                 }
                 
                 // Connection status
                 HStack {
-                    Image(systemName: sessionManager.isPhoneAppAvailable ? "iphone.homebutton" : "iphone.slash")
+                    Image(systemName: sessionManager.isPhoneAppAvailable ? "iphone.circle.fill" : "iphone.slash")
                         .foregroundColor(sessionManager.isPhoneAppAvailable ? .green : .red)
                         .font(.caption2)
                     
@@ -670,4 +360,9 @@ struct DrinkDetailsView: View {
                     presentationMode.wrappedValue.dismiss()
                 }
                 .buttonStyle(.bordered)
-                .padding(.top
+                .padding(.top, 8)
+            }
+            .padding()
+        }
+    }
+}

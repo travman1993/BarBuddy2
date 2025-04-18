@@ -181,6 +181,8 @@ struct DashboardView: View {
                             if drinkTracker.standardDrinkCount > 0 {
                                 DrinkSuggestionView()
                             }
+                            WatchSyncIndicator()
+                                .padding(.horizontal)
                         }
                     }
                 }

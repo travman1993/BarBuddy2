@@ -77,7 +77,13 @@
 		2659CCF72DB1D32400BD3581 /* Exceptions for "BarBuddy2Watch WatchKit Extension" folder in "BarBuddy2" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				" Extensions/Color+Extensions.swift",
 				App/BarBuddy2WatchApp.swift,
+				Complications/BarBuddyWidgetProvider.swift,
+				Models/DrinkTrackerWatch.swift,
+				NotificationController.swift,
+				Views/ContentView.swift,
+				Widget/BarBuddyWidgetProvider.swift,
 			);
 			target = 263D10102D8E3433003D370E /* BarBuddy2 */;
 		};

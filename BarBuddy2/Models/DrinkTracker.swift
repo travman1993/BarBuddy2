@@ -24,6 +24,20 @@ public class DrinkTracker: ObservableObject {
         checkForNightReset() // Check immediately on init in case we need to reset
         calculateDrinkCount()
         startResetTimer()
+        // Add to addDrink method
+        updateWatchData()
+
+        // Add to removeDrink method
+        updateWatchData()
+
+        // Add to clearDrinks method
+        updateWatchData()
+
+        // Add to updateDrinkLimit method
+        updateWatchData()
+
+        // Add to updateUserProfile method
+        updateWatchUserProfile()
     }
     
     deinit {
@@ -41,6 +55,20 @@ public class DrinkTracker: ObservableObject {
         drinks.append(newDrink)
         saveDrinks()
         calculateDrinkCount()
+        // Add to addDrink method
+        updateWatchData()
+
+        // Add to removeDrink method
+        updateWatchData()
+
+        // Add to clearDrinks method
+        updateWatchData()
+
+        // Add to updateDrinkLimit method
+        updateWatchData()
+
+        // Add to updateUserProfile method
+        updateWatchUserProfile()
     }
     
     public func removeDrink(_ drink: Drink) {
@@ -48,6 +76,20 @@ public class DrinkTracker: ObservableObject {
             drinks.remove(at: index)
             saveDrinks()
             calculateDrinkCount()
+            // Add to addDrink method
+            updateWatchData()
+
+            // Add to removeDrink method
+            updateWatchData()
+
+            // Add to clearDrinks method
+            updateWatchData()
+
+            // Add to updateDrinkLimit method
+            updateWatchData()
+
+            // Add to updateUserProfile method
+            updateWatchUserProfile()
         }
     }
     
@@ -55,18 +97,60 @@ public class DrinkTracker: ObservableObject {
         drinks.removeAll()
         saveDrinks()
         calculateDrinkCount()
+        // Add to addDrink method
+        updateWatchData()
+
+        // Add to removeDrink method
+        updateWatchData()
+
+        // Add to clearDrinks method
+        updateWatchData()
+
+        // Add to updateDrinkLimit method
+        updateWatchData()
+
+        // Add to updateUserProfile method
+        updateWatchUserProfile()
     }
     
     // MARK: - User Profile Management
     public func updateUserProfile(_ profile: UserProfile) {
         userProfile = profile
         saveUserProfile()
+        // Add to addDrink method
+        updateWatchData()
+
+        // Add to removeDrink method
+        updateWatchData()
+
+        // Add to clearDrinks method
+        updateWatchData()
+
+        // Add to updateDrinkLimit method
+        updateWatchData()
+
+        // Add to updateUserProfile method
+        updateWatchUserProfile()
     }
     
     // MARK: - Drink Limit Management
     public func updateDrinkLimit(_ limit: Double) {
         drinkLimit = limit
         UserDefaults.standard.set(limit, forKey: "userDrinkLimit")
+        // Add to addDrink method
+        updateWatchData()
+
+        // Add to removeDrink method
+        updateWatchData()
+
+        // Add to clearDrinks method
+        updateWatchData()
+
+        // Add to updateDrinkLimit method
+        updateWatchData()
+
+        // Add to updateUserProfile method
+        updateWatchUserProfile()
     }
     
     // MARK: - Helper methods
@@ -75,7 +159,22 @@ public class DrinkTracker: ObservableObject {
         resetTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
             self?.checkForNightReset()
             self?.calculateTimeUntilReset()
+            
         }
+        // Add to addDrink method
+        updateWatchData()
+
+        // Add to removeDrink method
+        updateWatchData()
+
+        // Add to clearDrinks method
+        updateWatchData()
+
+        // Add to updateDrinkLimit method
+        updateWatchData()
+
+        // Add to updateUserProfile method
+        updateWatchUserProfile()
     }
     
     private func checkForNightReset() {
@@ -113,6 +212,20 @@ public class DrinkTracker: ObservableObject {
                 lastResetDate = now
                 saveLastResetDate()
             }
+        // Add to addDrink method
+        updateWatchData()
+
+        // Add to removeDrink method
+        updateWatchData()
+
+        // Add to clearDrinks method
+        updateWatchData()
+
+        // Add to updateDrinkLimit method
+        updateWatchData()
+
+        // Add to updateUserProfile method
+        updateWatchUserProfile()
         }
     
     private func resetDrinkCount() {
@@ -139,6 +252,20 @@ public class DrinkTracker: ObservableObject {
             drinkLimit: drinkLimit,
             timeUntilReset: timeUntilReset
         )
+        // Add to addDrink method
+        updateWatchData()
+
+        // Add to removeDrink method
+        updateWatchData()
+
+        // Add to clearDrinks method
+        updateWatchData()
+
+        // Add to updateDrinkLimit method
+        updateWatchData()
+
+        // Add to updateUserProfile method
+        updateWatchUserProfile()
     }
     
     private func calculateDrinkCount() {
@@ -152,6 +279,20 @@ public class DrinkTracker: ObservableObject {
         
         // Calculate time until reset
         calculateTimeUntilReset()
+        // Add to addDrink method
+        updateWatchData()
+
+        // Add to removeDrink method
+        updateWatchData()
+
+        // Add to clearDrinks method
+        updateWatchData()
+
+        // Add to updateDrinkLimit method
+        updateWatchData()
+
+        // Add to updateUserProfile method
+        updateWatchUserProfile()
     }
     
     private func calculateTimeUntilReset() {
@@ -179,6 +320,20 @@ public class DrinkTracker: ObservableObject {
                 NotificationCenter.default.post(name: NSNotification.Name("timeUntilResetUpdated"), object: nil)
             }
         }
+        // Add to addDrink method
+        updateWatchData()
+
+        // Add to removeDrink method
+        updateWatchData()
+
+        // Add to clearDrinks method
+        updateWatchData()
+
+        // Add to updateDrinkLimit method
+        updateWatchData()
+
+        // Add to updateUserProfile method
+        updateWatchUserProfile()
     }
     
     // MARK: - Persistence Methods
@@ -186,6 +341,20 @@ public class DrinkTracker: ObservableObject {
         if let encoded = try? JSONEncoder().encode(drinks) {
             UserDefaults.standard.set(encoded, forKey: "savedDrinks")
         }
+        // Add to addDrink method
+        updateWatchData()
+
+        // Add to removeDrink method
+        updateWatchData()
+
+        // Add to clearDrinks method
+        updateWatchData()
+
+        // Add to updateDrinkLimit method
+        updateWatchData()
+
+        // Add to updateUserProfile method
+        updateWatchUserProfile()
     }
     
     private func loadSavedDrinks() {
@@ -193,12 +362,40 @@ public class DrinkTracker: ObservableObject {
            let decodedDrinks = try? JSONDecoder().decode([Drink].self, from: savedDrinks) {
             drinks = decodedDrinks
         }
+        // Add to addDrink method
+        updateWatchData()
+
+        // Add to removeDrink method
+        updateWatchData()
+
+        // Add to clearDrinks method
+        updateWatchData()
+
+        // Add to updateDrinkLimit method
+        updateWatchData()
+
+        // Add to updateUserProfile method
+        updateWatchUserProfile()
     }
     
     private func saveUserProfile() {
         if let encoded = try? JSONEncoder().encode(userProfile) {
             UserDefaults.standard.set(encoded, forKey: "userProfile")
         }
+        // Add to addDrink method
+        updateWatchData()
+
+        // Add to removeDrink method
+        updateWatchData()
+
+        // Add to clearDrinks method
+        updateWatchData()
+
+        // Add to updateDrinkLimit method
+        updateWatchData()
+
+        // Add to updateUserProfile method
+        updateWatchUserProfile()
     }
     
     private func loadUserProfile() {
@@ -206,6 +403,20 @@ public class DrinkTracker: ObservableObject {
            let decodedProfile = try? JSONDecoder().decode(UserProfile.self, from: savedProfile) {
             userProfile = decodedProfile
         }
+        // Add to addDrink method
+        updateWatchData()
+
+        // Add to removeDrink method
+        updateWatchData()
+
+        // Add to clearDrinks method
+        updateWatchData()
+
+        // Add to updateDrinkLimit method
+        updateWatchData()
+
+        // Add to updateUserProfile method
+        updateWatchUserProfile()
     }
     
     private func loadDrinkLimit() {
@@ -213,14 +424,56 @@ public class DrinkTracker: ObservableObject {
         if limit > 0 {
             drinkLimit = limit
         }
+        // Add to addDrink method
+        updateWatchData()
+
+        // Add to removeDrink method
+        updateWatchData()
+
+        // Add to clearDrinks method
+        updateWatchData()
+
+        // Add to updateDrinkLimit method
+        updateWatchData()
+
+        // Add to updateUserProfile method
+        updateWatchUserProfile()
     }
     
     private func saveLastResetDate() {
         UserDefaults.standard.set(lastResetDate, forKey: "lastDrinkReset")
+        // Add to addDrink method
+        updateWatchData()
+
+        // Add to removeDrink method
+        updateWatchData()
+
+        // Add to clearDrinks method
+        updateWatchData()
+
+        // Add to updateDrinkLimit method
+        updateWatchData()
+
+        // Add to updateUserProfile method
+        updateWatchUserProfile()
     }
     
     private func loadLastResetDate() {
         lastResetDate = UserDefaults.standard.object(forKey: "lastDrinkReset") as? Date
+        // Add to addDrink method
+        updateWatchData()
+
+        // Add to removeDrink method
+        updateWatchData()
+
+        // Add to clearDrinks method
+        updateWatchData()
+
+        // Add to updateDrinkLimit method
+        updateWatchData()
+
+        // Add to updateUserProfile method
+        updateWatchUserProfile()
     }
     
     // MARK: - Status Methods
