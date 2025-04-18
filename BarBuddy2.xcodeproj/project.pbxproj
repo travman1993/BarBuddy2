@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		26F895D82DA4A1BC00FDD3B4 /* BarBuddy.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 26F895D62DA4A1BC00FDD3B4 /* BarBuddy.xcdatamodeld */; };
+		26F895D82DA4A1BC00FDD3B4 /* BarBuddy2.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 26F895D62DA4A1BC00FDD3B4 /* BarBuddy2.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,14 +41,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		263D10112D8E3433003D370E /* BarBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BarBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		263D10112D8E3433003D370E /* BarBuddy2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BarBuddy2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		263D10212D8E3435003D370E /* BarBuddyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BarBuddyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		263D102B2D8E3435003D370E /* BarBuddyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BarBuddyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		26F895D72DA4A1BC00FDD3B4 /* BarBuddy.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = BarBuddy.xcdatamodel; sourceTree = "<group>"; };
+		26F895D72DA4A1BC00FDD3B4 /* BarBuddy2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = BarBuddy2.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		26F895D52DA49E2C00FDD3B4 /* Exceptions for "BarBuddy" folder in "BarBuddy" target */ = {
+		26F895D52DA49E2C00FDD3B4 /* Exceptions for "BarBuddy2" folder in "BarBuddy" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -58,22 +58,22 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		263D10132D8E3433003D370E /* BarBuddy */ = {
+		263D10132D8E3433003D370E /* BarBuddy2 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				26F895D52DA49E2C00FDD3B4 /* Exceptions for "BarBuddy" folder in "BarBuddy" target */,
+				26F895D52DA49E2C00FDD3B4 /* Exceptions for "BarBuddy2" folder in "BarBuddy" target */,
 			);
-			path = BarBuddy;
+			path = BarBuddy2;
 			sourceTree = "<group>";
 		};
-		263D10242D8E3435003D370E /* BarBuddyTests */ = {
+		263D10242D8E3435003D370E /* BarBuddy2Tests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = BarBuddyTests;
+			path = BarBuddy2Tests;
 			sourceTree = "<group>";
 		};
-		263D102E2D8E3435003D370E /* BarBuddyUITests */ = {
+		263D102E2D8E3435003D370E /* BarBuddy2UITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = BarBuddyUITests;
+			path = BarBuddy2UITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -106,10 +106,10 @@
 		263D10082D8E3433003D370E = {
 			isa = PBXGroup;
 			children = (
-				26F895D62DA4A1BC00FDD3B4 /* BarBuddy.xcdatamodeld */,
-				263D10132D8E3433003D370E /* BarBuddy */,
-				263D10242D8E3435003D370E /* BarBuddyTests */,
-				263D102E2D8E3435003D370E /* BarBuddyUITests */,
+				26F895D62DA4A1BC00FDD3B4 /* BarBuddy2.xcdatamodeld */,
+				263D10132D8E3433003D370E /* BarBuddy2 */,
+				263D10242D8E3435003D370E /* BarBuddy2Tests */,
+				263D102E2D8E3435003D370E /* BarBuddy2UITests */,
 				263D10122D8E3433003D370E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -117,7 +117,7 @@
 		263D10122D8E3433003D370E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				263D10112D8E3433003D370E /* BarBuddy.app */,
+				263D10112D8E3433003D370E /* BarBuddy2.app */,
 				263D10212D8E3435003D370E /* BarBuddyTests.xctest */,
 				263D102B2D8E3435003D370E /* BarBuddyUITests.xctest */,
 			);
@@ -141,13 +141,13 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				263D10132D8E3433003D370E /* BarBuddy */,
+				263D10132D8E3433003D370E /* BarBuddy2 */,
 			);
 			name = BarBuddy;
 			packageProductDependencies = (
 			);
 			productName = BarBuddy;
-			productReference = 263D10112D8E3433003D370E /* BarBuddy.app */;
+			productReference = 263D10112D8E3433003D370E /* BarBuddy2.app */;
 			productType = "com.apple.product-type.application";
 		};
 		263D10202D8E3435003D370E /* BarBuddyTests */ = {
@@ -164,7 +164,7 @@
 				263D10232D8E3435003D370E /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				263D10242D8E3435003D370E /* BarBuddyTests */,
+				263D10242D8E3435003D370E /* BarBuddy2Tests */,
 			);
 			name = BarBuddyTests;
 			packageProductDependencies = (
@@ -187,7 +187,7 @@
 				263D102D2D8E3435003D370E /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				263D102E2D8E3435003D370E /* BarBuddyUITests */,
+				263D102E2D8E3435003D370E /* BarBuddy2UITests */,
 			);
 			name = BarBuddyUITests;
 			packageProductDependencies = (
@@ -269,7 +269,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				26F895D82DA4A1BC00FDD3B4 /* BarBuddy.xcdatamodeld in Sources */,
+				26F895D82DA4A1BC00FDD3B4 /* BarBuddy2.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -429,13 +429,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"BarBuddy/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"BarBuddy2/Preview Content\"";
 				DEVELOPMENT_TEAM = UQNHPS9NWL;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = BarBuddy/Info.plist;
+				INFOPLIST_FILE = BarBuddy2/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "BarBuddy uses your location to share with emergency contacts when you choose to do so, and to help you find nearby ride services.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "BarBuddy2 uses your location to share with emergency contacts when you choose to do so, and to help you find nearby ride services.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -447,7 +447,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = rodriguez.travis.BarBuddy2;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = BarBuddy2;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -461,13 +461,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"BarBuddy/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"BarBuddy2/Preview Content\"";
 				DEVELOPMENT_TEAM = UQNHPS9NWL;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = BarBuddy/Info.plist;
+				INFOPLIST_FILE = BarBuddy2/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "BarBuddy uses your location to share with emergency contacts when you choose to do so, and to help you find nearby ride services.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "BarBuddy2 uses your location to share with emergency contacts when you choose to do so, and to help you find nearby ride services.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -479,7 +479,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = rodriguez.travis.BarBuddy2;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = BarBuddy2;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -600,13 +600,13 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		26F895D62DA4A1BC00FDD3B4 /* BarBuddy.xcdatamodeld */ = {
+		26F895D62DA4A1BC00FDD3B4 /* BarBuddy2.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				26F895D72DA4A1BC00FDD3B4 /* BarBuddy.xcdatamodel */,
+				26F895D72DA4A1BC00FDD3B4 /* BarBuddy2.xcdatamodel */,
 			);
-			currentVersion = 26F895D72DA4A1BC00FDD3B4 /* BarBuddy.xcdatamodel */;
-			path = BarBuddy.xcdatamodeld;
+			currentVersion = 26F895D72DA4A1BC00FDD3B4 /* BarBuddy2.xcdatamodel */;
+			path = BarBuddy2.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};
